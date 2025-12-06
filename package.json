@@ -1,0 +1,39 @@
+{
+  "name": "monad-parallelstream",
+  "version": "1.0.0",
+  "description": "Massively parallel micro-payment streams exploiting Monad's EVM for real-time value transfer at scale.",
+  "main": "index.js",
+  "scripts": {
+    "compile": "node scripts/compile.js",
+    "deploy": "node --loader ts-node/esm scripts/deploy.ts",
+    "stress-test": "node --loader ts-node/esm scripts/stress-test.ts",
+    "test-local": "node --loader ts-node/esm scripts/test-local.ts",
+    "dashboard": "node --loader ts-node/esm dashboard/server.ts",
+    "test": "echo \"Run 'npm run stress-test' to test the system\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-ethers": "^3.1.2",
+    "@nomicfoundation/hardhat-toolbox": "^6.1.0",
+    "@typechain/ethers-v6": "^0.5.1",
+    "@typechain/hardhat": "^9.1.0",
+    "@types/chai": "^5.2.3",
+    "@types/express": "^5.0.6",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^24.10.1",
+    "chai": "^6.2.1",
+    "ethers": "^6.16.0",
+    "hardhat": "^3.0.17",
+    "solc": "^0.8.24",
+    "ts-node": "^10.9.2",
+    "typechain": "^8.3.2",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1"
+  },
+  "type": "module"
+}
