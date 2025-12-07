@@ -14,12 +14,8 @@ const config: HardhatUserConfig = {
     },
   },
   networks: {
-    hardhat: {
-      type: "edr-simulated" as any,
-      chainId: 31337,
-    },
+    hardhat: {},
     monadTestnet: {
-      type: "http" as any,
       url: process.env.MONAD_RPC_URL || "https://testnet.monad.xyz",
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
       chainId: 41454,

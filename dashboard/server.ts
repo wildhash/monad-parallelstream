@@ -20,8 +20,13 @@ if (fs.existsSync(deploymentFile)) {
 }
 
 // Set up provider
-const rpcUrl = process.env.MONAD_RPC_URL || 'http://127.0.0.1:8545';
+const rpcUrl = process.env.MONAD_RPC_URL || process.env.RPC_URL || 'http://127.0.0.1:8545';
 const provider = new ethers.JsonRpcProvider(rpcUrl);
+
+// Warn if using default localhost
+if (rpcUrl === 'http://127.0.0.1:8545') {
+  console.warn('⚠️  Using default localhost RPC. Set MONAD_RPC_URL in .env for testnet/mainnet');
+}
 
 let parallelPaySDK: ParallelPaySDK | null = null;
 let x402SDK: X402PaymentSDK | null = null;

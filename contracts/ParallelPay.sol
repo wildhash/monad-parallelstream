@@ -76,6 +76,9 @@ contract ParallelPay {
 
         uint256 duration = stopTime - startTime;
         uint256 ratePerSecond = msg.value / duration;
+        
+        // Ensure rate is not zero due to integer division (min 1 wei/sec)
+        if (ratePerSecond == 0) revert InvalidDeposit();
 
         streamId = nextStreamId++;
 
@@ -234,6 +237,9 @@ contract ParallelPay {
             // Calculate outside struct to avoid stack too deep
             uint256 duration = stopTimes[i] - startTimes[i];
             uint256 rate = amounts[i] / duration;
+            
+            // Ensure rate is not zero due to integer division
+            if (rate == 0) revert InvalidDeposit();
 
             // Each stream in isolated storage slot
             Stream storage newStream = streams[streamId];

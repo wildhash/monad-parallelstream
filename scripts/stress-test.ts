@@ -81,7 +81,7 @@ async function main() {
 
     console.log(`✓ Created ${streamIds.length} streams successfully`);
     console.log(`⏱️  Time taken: ${batchDuration}ms`);
-    console.log(`⛽ Gas used: ${tx.gasUsed?.toString() || 'N/A'}`);
+    console.log(`⛽ Gas used: ${tx.gasUsed ? tx.gasUsed.toString() : 'N/A'}`);
     console.log(`📊 Average: ${(batchDuration / STREAM_COUNT).toFixed(2)}ms per stream`);
     console.log(`\nStream IDs: ${streamIds.slice(0, 5).join(', ')}...`);
   } catch (error: any) {
@@ -151,7 +151,7 @@ async function main() {
 
     console.log(`✓ Created ${requestIds.length} payment requests successfully`);
     console.log(`⏱️  Time taken: ${x402Duration}ms`);
-    console.log(`⛽ Gas used: ${tx.gasUsed?.toString() || 'N/A'}`);
+    console.log(`⛽ Gas used: ${tx.gasUsed ? tx.gasUsed.toString() : 'N/A'}`);
     console.log(`📊 Average: ${(x402Duration / STREAM_COUNT).toFixed(2)}ms per request`);
   } catch (error: any) {
     console.error('❌ Error creating payment requests:', error.message);
