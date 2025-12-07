@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
-import ParallelPayArtifact from '../artifacts/contracts/ParallelPay.sol/ParallelPay.json' assert { type: 'json' };
-import X402PaymentArtifact from '../artifacts/contracts/X402Payment.sol/X402Payment.json' assert { type: 'json' };
+import ParallelPayArtifact from '../artifacts/contracts/ParallelPay.sol/ParallelPay.json' with { type: 'json' };
+import X402PaymentArtifact from '../artifacts/contracts/X402Payment.sol/X402Payment.json' with { type: 'json' };
 
 export interface StreamData {
   sender: string;
