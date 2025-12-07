@@ -121,7 +121,7 @@ contract SLAStreamFactory {
      */
     function setOracleAuthorization(address oracle, bool authorized) external {
         // Only authorized oracles can authorize others (including deployer initially)
-        require(authorizedOracles[msg.sender], "Unauthorized: caller not authorized oracle");
+        if (!authorizedOracles[msg.sender]) revert OracleNotAuthorized();
         authorizedOracles[oracle] = authorized;
         emit OracleAuthorized(oracle, authorized);
     }

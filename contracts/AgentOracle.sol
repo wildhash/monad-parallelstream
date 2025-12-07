@@ -64,6 +64,9 @@ contract AgentOracle {
     error InvalidSignature();
     error InvalidMetrics();
     error InvalidStreamFactory();
+    error TimestampTooOld();
+    error TimestampInFuture();
+    error ArrayLengthMismatch();
 
     modifier onlyOwner() {
         if (msg.sender != owner) revert Unauthorized();
@@ -169,8 +172,8 @@ contract AgentOracle {
         bytes calldata signature
     ) external returns (uint256 reportId) {
         // Validate timestamp is recent (within 5 minutes)
-        require(block.timestamp <= timestamp + 300, "Timestamp too old");
-        require(timestamp <= block.timestamp + 60, "Timestamp in future");
+        if (block.timestamp > timestamp + 300) revert TimestampTooOld();
+        if (timestamp > block.timestamp + 60) revert TimestampInFuture();
         
         // Create message hash
         bytes32 messageHash = keccak256(
@@ -239,13 +242,12 @@ contract AgentOracle {
         uint256[] calldata jitters
     ) external onlyAuthorizedAgent returns (uint256[] memory reportIds) {
         uint256 length = streamIds.length;
-        require(
-            length == latencies.length &&
-            length == uptimes.length &&
-            length == errorRates.length &&
-            length == jitters.length,
-            "Array length mismatch"
-        );
+        if (
+            length != latencies.length ||
+            length != uptimes.length ||
+            length != errorRates.length ||
+            length != jitters.length
+        ) revert ArrayLengthMismatch();
 
         reportIds = new uint256[](length);
         uint256 currentTime = block.timestamp;
@@ -362,12 +364,12 @@ contract AgentOracle {
         pure
         returns (bytes32 r, bytes32 s, uint8 v)
     {
-        require(sig.length == 65, "Invalid signature length");
-
         assembly {
             r := mload(add(sig, 32))
             s := mload(add(sig, 64))
             v := byte(0, mload(add(sig, 96)))
         }
+        
+        if (sig.length != 65) revert InvalidSignature();
     }
 }

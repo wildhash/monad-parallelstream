@@ -77,6 +77,7 @@ contract RefundManager {
     error InvalidStreamFactory();
     error InvalidAmount();
     error ExecutionFailed();
+    error ArrayLengthMismatch();
 
     /// @notice Modifier to check authorization
     modifier onlyAuthorized() {
@@ -216,10 +217,10 @@ contract RefundManager {
         uint256[] calldata breachValues
     ) external onlyAuthorized {
         uint256 length = streamIds.length;
-        require(
-            length == breachTypes.length && length == breachValues.length,
-            "Array length mismatch"
-        );
+        if (
+            length != breachTypes.length ||
+            length != breachValues.length
+        ) revert ArrayLengthMismatch();
 
         for (uint256 i = 0; i < length; i++) {
             ISLAStreamFactory(streamFactory).reportSLABreach(
