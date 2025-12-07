@@ -79,9 +79,8 @@ contract RefundManager {
     error ExecutionFailed();
 
     /// @notice Modifier to check authorization
-    modifier onlyAuthorized(uint256 streamId) {
-        // Get stream details from factory
-        // For simplicity, we allow authorized agents or contract owner
+    modifier onlyAuthorized() {
+        // Allow authorized agents or contract owner
         if (!authorizedAgents[msg.sender] && msg.sender != owner) {
             revert Unauthorized();
         }
@@ -123,7 +122,7 @@ contract RefundManager {
         uint256 streamId,
         string calldata breachType,
         uint256 breachValue
-    ) external onlyAuthorized(streamId) {
+    ) external onlyAuthorized {
         // Call the stream factory to report breach and trigger refund
         ISLAStreamFactory(streamFactory).reportSLABreach(
             streamId,
@@ -151,7 +150,7 @@ contract RefundManager {
     function executeFullRefund(
         uint256 streamId,
         string calldata reason
-    ) external onlyAuthorized(streamId) {
+    ) external onlyAuthorized {
         // Report multiple breaches to trigger full refund
         ISLAStreamFactory(streamFactory).reportSLABreach(
             streamId,
@@ -192,7 +191,7 @@ contract RefundManager {
     function cancelStreamDueToSLA(
         uint256 streamId,
         string calldata reason
-    ) external onlyAuthorized(streamId) {
+    ) external onlyAuthorized {
         // Report severe breaches to force cancellation
         for (uint i = 0; i < 5; i++) {
             ISLAStreamFactory(streamFactory).reportSLABreach(
@@ -215,7 +214,7 @@ contract RefundManager {
         uint256[] calldata streamIds,
         string[] calldata breachTypes,
         uint256[] calldata breachValues
-    ) external onlyAuthorized(0) {
+    ) external onlyAuthorized {
         uint256 length = streamIds.length;
         require(
             length == breachTypes.length && length == breachValues.length,

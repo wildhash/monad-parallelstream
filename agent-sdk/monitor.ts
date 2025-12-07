@@ -231,6 +231,9 @@ export class SLAMonitor {
    * Submit signed metrics to oracle (with signature verification)
    */
   async submitSignedMetrics(metrics: SLAMetrics): Promise<ethers.ContractTransactionResponse> {
+    // Use current timestamp for signature
+    const timestamp = Math.floor(Date.now() / 1000);
+    
     // Create message hash
     const messageHash = ethers.solidityPackedKeccak256(
       ['uint256', 'uint256', 'uint256', 'uint256', 'uint256', 'uint256'],
@@ -240,7 +243,7 @@ export class SLAMonitor {
         metrics.uptimePercent,
         metrics.errorRate,
         metrics.jitterMs,
-        metrics.timestamp,
+        timestamp,
       ]
     );
 
@@ -255,6 +258,7 @@ export class SLAMonitor {
       metrics.uptimePercent,
       metrics.errorRate,
       metrics.jitterMs,
+      timestamp,
       signature
     );
   }

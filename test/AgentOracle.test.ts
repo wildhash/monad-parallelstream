@@ -230,6 +230,7 @@ describe('AgentOracle', () => {
           uptimePercent,
           errorRate,
           jitterMs,
+          timestamp,
           signature
         )
       )
@@ -262,6 +263,7 @@ describe('AgentOracle', () => {
           uptimePercent,
           errorRate,
           jitterMs,
+          timestamp,
           signature
         )
       ).to.be.revertedWithCustomError(oracle, 'InvalidSignature');

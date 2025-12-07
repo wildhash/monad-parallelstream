@@ -156,6 +156,7 @@ contract AgentOracle {
      * @param uptimePercent Uptime measurement
      * @param errorRate Error rate measurement
      * @param jitterMs Jitter measurement
+     * @param timestamp Timestamp of the measurement (for signature)
      * @param signature ECDSA signature from authorized agent
      */
     function submitSignedMetricReport(
@@ -164,8 +165,13 @@ contract AgentOracle {
         uint256 uptimePercent,
         uint256 errorRate,
         uint256 jitterMs,
+        uint256 timestamp,
         bytes calldata signature
     ) external returns (uint256 reportId) {
+        // Validate timestamp is recent (within 5 minutes)
+        require(block.timestamp <= timestamp + 300, "Timestamp too old");
+        require(timestamp <= block.timestamp + 60, "Timestamp in future");
+        
         // Create message hash
         bytes32 messageHash = keccak256(
             abi.encodePacked(
@@ -174,7 +180,7 @@ contract AgentOracle {
                 uptimePercent,
                 errorRate,
                 jitterMs,
-                block.timestamp
+                timestamp
             )
         );
 
@@ -199,7 +205,7 @@ contract AgentOracle {
             uptimePercent: uptimePercent,
             errorRate: errorRate,
             jitterMs: jitterMs,
-            timestamp: block.timestamp,
+            timestamp: timestamp,
             reporter: signer
         });
 
@@ -211,7 +217,7 @@ contract AgentOracle {
             uptimePercent,
             errorRate,
             jitterMs,
-            block.timestamp
+            timestamp
         );
 
         _checkAndEmitBreaches(streamId, latencyMs, uptimePercent, errorRate, jitterMs);

@@ -120,12 +120,10 @@ contract SLAStreamFactory {
      * @param authorized Authorization status
      */
     function setOracleAuthorization(address oracle, bool authorized) external {
-        // Simple authorization - in production, add proper access control
-        if (msg.sender != address(this)) {
-            // Allow contract owner or self to authorize
-            authorizedOracles[oracle] = authorized;
-            emit OracleAuthorized(oracle, authorized);
-        }
+        // Only authorized oracles can authorize others (including deployer initially)
+        require(authorizedOracles[msg.sender], "Unauthorized: caller not authorized oracle");
+        authorizedOracles[oracle] = authorized;
+        emit OracleAuthorized(oracle, authorized);
     }
 
     /**
