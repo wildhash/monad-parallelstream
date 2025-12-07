@@ -1,5 +1,11 @@
 import { ethers } from 'ethers';
-import { deployParallelPay, deployX402Payment } from '../sdk/index.js';
+import { 
+  deployParallelPay, 
+  deployX402Payment,
+  deploySLAStreamFactory,
+  deployAgentOracle,
+  deployRefundManager
+} from '../sdk/index.js';
 import * as dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
@@ -50,6 +56,21 @@ async function main() {
   const { address: x402Address } = await deployX402Payment(deployer);
   console.log(`✓ X402Payment deployed at: ${x402Address}\n`);
 
+  // Deploy SLAStreamFactory
+  console.log('📝 Deploying SLAStreamFactory contract...');
+  const { address: slaStreamFactoryAddress } = await deploySLAStreamFactory(deployer);
+  console.log(`✓ SLAStreamFactory deployed at: ${slaStreamFactoryAddress}\n`);
+
+  // Deploy AgentOracle
+  console.log('📝 Deploying AgentOracle contract...');
+  const { address: agentOracleAddress } = await deployAgentOracle(deployer, slaStreamFactoryAddress);
+  console.log(`✓ AgentOracle deployed at: ${agentOracleAddress}\n`);
+
+  // Deploy RefundManager
+  console.log('📝 Deploying RefundManager contract...');
+  const { address: refundManagerAddress } = await deployRefundManager(deployer, slaStreamFactoryAddress);
+  console.log(`✓ RefundManager deployed at: ${refundManagerAddress}\n`);
+
   // Save deployment addresses
   const deploymentInfo = {
     network: 'Monad Testnet',
@@ -59,6 +80,9 @@ async function main() {
     contracts: {
       ParallelPay: parallelPayAddress,
       X402Payment: x402Address,
+      SLAStreamFactory: slaStreamFactoryAddress,
+      AgentOracle: agentOracleAddress,
+      RefundManager: refundManagerAddress,
     },
   };
 
@@ -74,8 +98,11 @@ async function main() {
   console.log('✅ Deployment Complete!');
   console.log('='.repeat(60));
   console.log('\n📋 Deployment Summary:');
-  console.log(`  ParallelPay:  ${parallelPayAddress}`);
-  console.log(`  X402Payment:  ${x402Address}`);
+  console.log(`  ParallelPay:      ${parallelPayAddress}`);
+  console.log(`  X402Payment:      ${x402Address}`);
+  console.log(`  SLAStreamFactory: ${slaStreamFactoryAddress}`);
+  console.log(`  AgentOracle:      ${agentOracleAddress}`);
+  console.log(`  RefundManager:    ${refundManagerAddress}`);
   console.log(`\n💾 Saved to: ${deploymentFile}\n`);
 }
 

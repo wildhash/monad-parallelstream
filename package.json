@@ -8,9 +8,12 @@
     "verify": "npx tsx scripts/verify-contracts.ts",
     "deploy": "npx tsx scripts/deploy.ts",
     "stress-test": "npx tsx scripts/stress-test.ts",
+    "stress-parallel": "npx tsx scripts/stress-parallel.ts",
+    "simulate-degradation": "npx tsx scripts/simulate-degradation.ts",
     "test-local": "npx tsx scripts/test-local.ts",
+    "test-hardhat": "npx hardhat test",
     "dashboard": "npx tsx dashboard/server.ts",
-    "test": "npm run compile && npm run verify"
+    "test": "npm run compile && npm run test-hardhat"
   },
   "keywords": [],
   "author": "",

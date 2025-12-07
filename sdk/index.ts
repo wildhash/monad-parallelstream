@@ -1,6 +1,9 @@
 import { ethers } from 'ethers';
 import ParallelPayArtifact from '../artifacts/contracts/ParallelPay.sol/ParallelPay.json' with { type: 'json' };
 import X402PaymentArtifact from '../artifacts/contracts/X402Payment.sol/X402Payment.json' with { type: 'json' };
+import SLAStreamFactoryArtifact from '../artifacts/contracts/SLAStreamFactory.sol/SLAStreamFactory.json' with { type: 'json' };
+import RefundManagerArtifact from '../artifacts/contracts/RefundManager.sol/RefundManager.json' with { type: 'json' };
+import AgentOracleArtifact from '../artifacts/contracts/AgentOracle.sol/AgentOracle.json' with { type: 'json' };
 
 export interface StreamData {
   sender: string;
@@ -335,6 +338,59 @@ export async function deployX402Payment(
     signer
   );
   const contract = await factory.deploy();
+  await contract.waitForDeployment();
+  const address = await contract.getAddress();
+  return { address, contract };
+}
+
+/**
+ * Deploy SLAStreamFactory contract
+ */
+export async function deploySLAStreamFactory(
+  signer: ethers.Signer
+): Promise<{ address: string; contract: ethers.Contract }> {
+  const factory = new ethers.ContractFactory(
+    SLAStreamFactoryArtifact.abi,
+    SLAStreamFactoryArtifact.bytecode,
+    signer
+  );
+  const contract = await factory.deploy();
+  await contract.waitForDeployment();
+  const address = await contract.getAddress();
+  return { address, contract };
+}
+
+/**
+ * Deploy AgentOracle contract
+ */
+export async function deployAgentOracle(
+  signer: ethers.Signer,
+  streamFactoryAddress: string
+): Promise<{ address: string; contract: ethers.Contract }> {
+  const factory = new ethers.ContractFactory(
+    AgentOracleArtifact.abi,
+    AgentOracleArtifact.bytecode,
+    signer
+  );
+  const contract = await factory.deploy(streamFactoryAddress);
+  await contract.waitForDeployment();
+  const address = await contract.getAddress();
+  return { address, contract };
+}
+
+/**
+ * Deploy RefundManager contract
+ */
+export async function deployRefundManager(
+  signer: ethers.Signer,
+  streamFactoryAddress: string
+): Promise<{ address: string; contract: ethers.Contract }> {
+  const factory = new ethers.ContractFactory(
+    RefundManagerArtifact.abi,
+    RefundManagerArtifact.bytecode,
+    signer
+  );
+  const contract = await factory.deploy(streamFactoryAddress);
   await contract.waitForDeployment();
   const address = await contract.getAddress();
   return { address, contract };
