@@ -1,6 +1,6 @@
 # Quick Start Guide
 
-Get ParallelPay up and running in 5 minutes!
+Get ParallelStream up and running with SLA-enforced payment streaming in 5 minutes!
 
 ## 1. Installation (1 minute)
 
@@ -10,7 +10,7 @@ git clone https://github.com/wildhash/monad-parallelstream.git
 cd monad-parallelstream
 
 # Install dependencies
-npm install
+npm install --legacy-peer-deps
 ```
 
 ## 2. Configuration (1 minute)
@@ -39,6 +39,9 @@ npm run compile
 
 You should see:
 ```
+✓ Compiled SLAStreamFactory
+✓ Compiled AgentOracle
+✓ Compiled RefundManager
 ✓ Compiled ParallelPay
 ✓ Compiled X402Payment
 ```
@@ -56,15 +59,31 @@ You should see:
 npm run deploy
 ```
 
-Save the contract addresses shown in the output!
-
-## 6. Test It! (30 seconds)
-
-```bash
-npm run stress-test
+Save the contract addresses shown in the output:
+```
+✅ Deployment Complete!
+  SLAStreamFactory: 0x...
+  AgentOracle:      0x...
+  RefundManager:    0x...
+  ParallelPay:      0x...
+  X402Payment:      0x...
 ```
 
-Watch 50 streams get created in parallel!
+## 6. Test SLA Features! (2 minutes)
+
+### Option A: SLA Degradation Simulation
+```bash
+npm run simulate-degradation
+```
+
+This creates streams with strict SLA, simulates performance degradation, and triggers automatic refunds!
+
+### Option B: Parallel Stress Test
+```bash
+npm run stress-parallel 50
+```
+
+Watch 50 SLA-enforced streams get created and monitored in parallel!
 
 ## 7. View Dashboard (30 seconds)
 
@@ -79,14 +98,51 @@ Open: http://localhost:3000
 ### For Developers
 
 - Check out [EXAMPLES.md](EXAMPLES.md) for code samples
-- Read [ARCHITECTURE.md](ARCHITECTURE.md) to understand the design
-- See [DEPLOYMENT.md](DEPLOYMENT.md) for advanced deployment
+- Read [SLA_ARCHITECTURE.md](SLA_ARCHITECTURE.md) to understand the SLA system
+- See [ARCHITECTURE.md](ARCHITECTURE.md) for parallel execution design
+- Explore [DEPLOYMENT.md](DEPLOYMENT.md) for advanced deployment
 
 ### For Users
 
 - Explore the dashboard interface
-- Try creating your own streams
-- Monitor real-time payments
+- Try creating your own SLA-enforced streams
+- Monitor real-time payments and SLA metrics
+- Observe automatic refund execution
+
+### Quick SLA Example
+
+Create a stream with SLA monitoring:
+
+```typescript
+import { ethers } from 'ethers';
+import SLAStreamFactoryArtifact from './artifacts/contracts/SLAStreamFactory.sol/SLAStreamFactory.json';
+
+const streamFactory = new ethers.Contract(
+  streamFactoryAddress,
+  SLAStreamFactoryArtifact.abi,
+  signer
+);
+
+// Define SLA
+const sla = {
+  maxLatencyMs: 500,
+  minUptimePercent: 9900,      // 99.00%
+  maxErrorRate: 100,           // 1.00%
+  maxJitterMs: 100,
+  refundPercentOnBreach: 500,  // 5% refund per breach
+  autoStopOnSevereBreach: true
+};
+
+// Create stream with SLA
+await streamFactory.createStream(
+  recipientAddress,
+  ethers.ZeroAddress,  // ETH
+  startTime,
+  stopTime,
+  sla,
+  { value: ethers.parseEther('1.0') }
+);
+```
 
 ## Common First-Time Issues
 
@@ -97,7 +153,10 @@ Open: http://localhost:3000
 → Check your RPC_URL in .env
 
 ### "Compilation failed"
-→ Make sure you ran `npm install`
+→ Make sure you ran `npm install --legacy-peer-deps`
+
+### "OracleNotAuthorized"
+→ Your deployer address is automatically authorized. Make sure you're using the same account.
 
 ### Dashboard shows "not connected"
 → Run `npm run deploy` first to create deployment file
@@ -106,35 +165,39 @@ Open: http://localhost:3000
 
 ```bash
 # Development
-npm run compile        # Compile contracts
-npm run deploy         # Deploy to testnet
-npm run stress-test    # Run stress test
-npm run test-local     # Test locally
-npm run dashboard      # Start dashboard
+npm run compile               # Compile contracts
+npm run deploy                # Deploy to testnet
+npm run stress-parallel 100   # Create 100 parallel SLA streams
+npm run simulate-degradation  # Simulate SLA breaches
+npm run test                  # Run test suite
+npm run dashboard             # Start dashboard
 
 # Quick test
-npm run compile && npm run test-local
+npm run compile && npm run test
 ```
 
-## SDK Quick Example
+## AI Agent SDK Quick Example
 
 ```typescript
-import { ethers } from 'ethers';
-import { ParallelPaySDK } from './sdk/index.js';
+import { SLAMonitor, RefundExecutor } from './agent-sdk';
 
-// Connect
-const provider = new ethers.JsonRpcProvider('https://testnet.monad.xyz');
-const signer = new ethers.Wallet('0x...', provider);
-const sdk = new ParallelPaySDK('CONTRACT_ADDRESS', signer);
+// Initialize monitor
+const monitor = new SLAMonitor(oracleAddress, streamFactoryAddress, signer);
+monitor.addStream(streamId);
+monitor.startMonitoring(10000); // Check every 10s
 
-// Create stream
-const now = Math.floor(Date.now() / 1000);
-await sdk.createStream(
-  '0xRecipientAddress',
-  now,              // start now
-  now + 86400,      // end in 24 hours
-  ethers.parseEther('1.0')  // 1 ETH
+// Initialize refund executor
+const refundExecutor = new RefundExecutor(
+  refundManagerAddress,
+  oracleAddress,
+  streamFactoryAddress,
+  signer
 );
+
+// Start automatic refunds
+await refundExecutor.startAutoRefund(1, 3); // Threshold: 1, Severity: 3
+
+console.log('SLA monitoring and auto-refunds active!');
 ```
 
 ## Help & Support
